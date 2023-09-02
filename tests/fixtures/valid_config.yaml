@@ -1,0 +1,14 @@
+straps:
+  - name: clib
+    context: /tmp # TODO: explicit context e.g. /tmp/{{ STRAP_DIR }} ???
+    steps:
+      - name: clone repo
+        run: git clone ~/repositories/strap
+
+      # - name: cleanup
+      # run: rm -rf .git
+
+      # - name: rename
+      #   run: |
+      #     find . -type f -exec sed -i "s//$strap_dir/g" {} \;
+      #     sed -i "s/<year>/$(date +%Y)/" LICENSE
