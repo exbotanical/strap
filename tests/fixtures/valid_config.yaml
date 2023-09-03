@@ -3,11 +3,12 @@ straps:
     context: /tmp # TODO: explicit context e.g. /tmp/{{ STRAP_DIR }} ???
     steps:
       - name: clone repo
-        run: git clone ~/repositories/strap
+        run: git clone https://github.com/exbotanical/clib-boilerplate .
         # in: { { strap.context.project } } ???
+        # prompt: true - TODO: will prompt user before proceeding
 
       # - name: cleanup
-      # run: rm -rf .git
+      #   run: rm -rf .git
 
       # - name: rename
       #   run: |

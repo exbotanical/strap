@@ -1,10 +1,5 @@
 use std::collections::HashSet;
 
-pub fn read_file_string(filepath: &str) -> Result<String, Box<dyn std::error::Error>> {
-    let data = std::fs::read_to_string(filepath)?;
-    Ok(data)
-}
-
 pub fn has_duplicates<T: std::hash::Hash + std::cmp::Eq>(vec: &[T]) -> bool {
     let mut seen = HashSet::new();
     vec.iter().any(|value| !seen.insert(value))

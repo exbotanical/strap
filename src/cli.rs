@@ -1,26 +1,24 @@
-use clap::{arg, Command};
+use clap::{arg, Arg, Command};
 
 use crate::config::StrapConfig;
 
 pub fn config_cli() -> Command {
-    let cmd = Command::new("stack")
+    Command::new("strap")
         .about("TODO:")
         .subcommand_required(true)
         .arg_required_else_help(true)
         .allow_external_subcommands(true)
         .ignore_errors(true)
-        .arg(arg!(-c --config <FILE> "Sets a custom config file"));
-
-    cmd
+        .arg(arg!(-c --config <FILE> "Sets a custom config file"))
 }
 
 pub fn cli(config: &StrapConfig) -> Command {
-    let mut cmd = Command::new("stack")
+    let mut cmd = Command::new("strap")
         .about("TODO:")
         .subcommand_required(true)
         .arg_required_else_help(true)
         .allow_external_subcommands(true)
-        .ignore_errors(true);
+        .arg(arg!(-c --config <FILE> "Sets a custom config file"));
 
     let strap_ids: Vec<String> = config
         .straps

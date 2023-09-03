@@ -1,81 +1,8 @@
-use std::{
-    env,
-    path::{Path, PathBuf},
-    process::Command,
-};
-
 use serde::{Deserialize, Serialize};
 
-use crate::util::{has_duplicates, read_file_string};
+use crate::{domain::Strap, fs::FileReader, util::has_duplicates};
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Step {
-    name: Option<String>,
-    uses: Option<String>,
-    run: Option<String>,
-}
-
-impl Step {
-    pub fn execute(&self, context: &PathBuf) -> Result<(), String> {
-        let cmd = self
-            .run
-            .to_owned() //TODO:
-            // TODO: validate steps[n].run
-            .expect(format!("run specifier required for step {}", "TODO: self.name").as_str());
-
-        // TODO: windows?
-        let output = Command::new("sh")
-            .current_dir(context)
-            .arg("-c")
-            .args([cmd])
-            .output()
-            .map_err(|e| e.to_string())?;
-
-        if output.status.success() {
-            Ok(())
-        } else {
-            Err(String::from_utf8_lossy(&output.stderr).to_string())
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Strap {
-    pub name: String,
-    pub context: Option<String>,
-    pub steps: Vec<Step>,
-}
-
-// pub struct StrapIter<'a> {
-//     strap: &'a Strap,
-//     step_cursor: usize,
-// }
-
-// impl Strap {
-//     pub fn iter(&self) -> StrapIter {
-//         StrapIter {
-//             strap: self,
-//             step_cursor: 0,
-//         }
-//     }
-// }
-
-// impl<'a> Iterator for StrapIter<'a> {
-//     type Item = Result<(), String>;
-
-//     fn next(&mut self) -> Option<Self::Item> {
-//         if self.step_cursor < self.strap.steps.len() {
-//             let result = self.strap.steps[self.step_cursor].execute();
-//             self.step_cursor += 1;
-//             Some(result)
-//         } else {
-//             None
-//         }
-//     }
-// }
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct StrapConfig {
     pub straps: Vec<Strap>,
 }
@@ -83,8 +10,12 @@ pub struct StrapConfig {
 const DEFAULT_CONFIG_DIR: &str = "./tests/fixtures/valid_config.yaml";
 
 impl StrapConfig {
-    pub fn parse(config_path: Option<&str>) -> Result<StrapConfig, String> {
-        let config_as_str = read_file_string(config_path.unwrap_or(DEFAULT_CONFIG_DIR))
+    pub fn parse<R: FileReader>(
+        reader: &R,
+        config_path: Option<&str>,
+    ) -> Result<StrapConfig, String> {
+        let config_as_str = reader
+            .read_file_string(config_path.unwrap_or(DEFAULT_CONFIG_DIR))
             .map_err(|e| e.to_string())
             .unwrap();
 
@@ -118,6 +49,77 @@ impl StrapConfig {
     }
 }
 
-// Validate
-// 1. Every strap has expected args run
-// 2. If strap has no context, use curre
+#[cfg(test)]
+mod tests {
+    use crate::fs::MockFileReader;
+
+    use super::*;
+    use mockall::predicate;
+
+    #[test]
+    fn test_parse_valid_config() {
+        let mut mock_reader = MockFileReader::new();
+
+        let mock_content = r#"
+        straps:
+          - name: "test_strap"
+            steps:
+              - name: "step1"
+                run: "echo hello"
+        "#;
+
+        mock_reader
+            .expect_read_file_string()
+            .with(predicate::eq("./tests/fixtures/valid_config.yaml"))
+            .return_once(move |_| Ok(mock_content.to_string()));
+
+        let config = StrapConfig::parse(&mock_reader, Some("./tests/fixtures/valid_config.yaml"));
+
+        assert!(config.is_ok());
+    }
+
+    #[test]
+    fn test_parse_invalid_config() {
+        let mut mock_reader = MockFileReader::new();
+        mock_reader
+            .expect_read_file_string()
+            .with(predicate::eq("./tests/fixtures/invalid_config.yaml"))
+            .return_once(move |_| Ok("invalid content".to_string()));
+
+        let config = StrapConfig::parse(&mock_reader, Some("./tests/fixtures/invalid_config.yaml"));
+
+        assert!(config.is_err());
+    }
+
+    #[test]
+    fn test_find_existing_strap() {
+        let mock_content = r#"
+        straps:
+          - name: "test_strap"
+            steps:
+              - name: "step1"
+                run: "echo hello"
+        "#;
+
+        let config: StrapConfig = serde_yaml::from_str(mock_content).unwrap();
+        let strap = config.find_strap("test_strap");
+
+        assert!(strap.is_ok());
+    }
+
+    #[test]
+    fn test_find_non_existing_strap() {
+        let mock_content = r#"
+        straps:
+          - name: "test_strap"
+            steps:
+              - name: "step1"
+                run: "echo hello"
+        "#;
+
+        let config: StrapConfig = serde_yaml::from_str(mock_content).unwrap();
+        let strap = config.find_strap("non_existing_strap_name");
+
+        assert!(strap.is_err());
+    }
+}
