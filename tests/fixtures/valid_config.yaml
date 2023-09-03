@@ -4,6 +4,7 @@ straps:
     steps:
       - name: clone repo
         run: git clone ~/repositories/strap
+        # in: { { strap.context.project } } ???
 
       # - name: cleanup
       # run: rm -rf .git

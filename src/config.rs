@@ -16,7 +16,7 @@ pub struct Step {
 }
 
 impl Step {
-    pub fn execute(&self) -> Result<(), String> {
+    pub fn execute(&self, context: &PathBuf) -> Result<(), String> {
         let cmd = self
             .run
             .to_owned() //TODO:
@@ -25,6 +25,7 @@ impl Step {
 
         // TODO: windows?
         let output = Command::new("sh")
+            .current_dir(context)
             .arg("-c")
             .args([cmd])
             .output()
@@ -41,68 +42,37 @@ impl Step {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Strap {
     pub name: String,
-    context: Option<String>,
-    steps: Vec<Step>,
+    pub context: Option<String>,
+    pub steps: Vec<Step>,
 }
 
-pub struct StrapIter<'a> {
-    strap: &'a Strap,
-    step_cursor: usize,
-}
+// pub struct StrapIter<'a> {
+//     strap: &'a Strap,
+//     step_cursor: usize,
+// }
 
-impl Strap {
-    pub fn iter(&self) -> StrapIter {
-        StrapIter {
-            strap: self,
-            step_cursor: 0,
-        }
-    }
+// impl Strap {
+//     pub fn iter(&self) -> StrapIter {
+//         StrapIter {
+//             strap: self,
+//             step_cursor: 0,
+//         }
+//     }
+// }
 
-    pub fn get_valid_context(
-        &self,
-        strap_name: &str,
-        project_name: &str,
-    ) -> Result<PathBuf, String> {
-        let mut base_path_buf: PathBuf = match &self.context {
-            Some(context) if !context.is_empty() => Path::new(context).to_path_buf(),
-            _ => {
-                let cwd = env::current_dir().unwrap();
-                println!("No context set for {}. Assuming cwd as context", strap_name);
-                cwd
-            }
-        };
+// impl<'a> Iterator for StrapIter<'a> {
+//     type Item = Result<(), String>;
 
-        // TODO: allow custom
-        base_path_buf.push(project_name);
-
-        if base_path_buf.to_str().is_none() {
-            return Err("Path is not valid UTF-8.".to_string());
-        }
-
-        if base_path_buf.exists() {
-            return Err(format!(
-                "Cannot create strap {}; the path {:?} already exists",
-                strap_name, base_path_buf
-            ));
-        }
-
-        Ok(base_path_buf)
-    }
-}
-
-impl<'a> Iterator for StrapIter<'a> {
-    type Item = Result<(), String>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.step_cursor < self.strap.steps.len() {
-            let result = self.strap.steps[self.step_cursor].execute();
-            self.step_cursor += 1;
-            Some(result)
-        } else {
-            None
-        }
-    }
-}
+//     fn next(&mut self) -> Option<Self::Item> {
+//         if self.step_cursor < self.strap.steps.len() {
+//             let result = self.strap.steps[self.step_cursor].execute();
+//             self.step_cursor += 1;
+//             Some(result)
+//         } else {
+//             None
+//         }
+//     }
+// }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -147,3 +117,7 @@ impl StrapConfig {
         }
     }
 }
+
+// Validate
+// 1. Every strap has expected args run
+// 2. If strap has no context, use curre

@@ -1,3 +1,4 @@
+use clap::ArgMatches;
 use unicode_segmentation::UnicodeSegmentation;
 
 #[derive(Debug)]
@@ -6,7 +7,7 @@ pub struct ProjectName(String);
 const FORBIDDEN_CHARS: [char; 9] = ['/', '(', ')', '"', '<', '>', '\\', '{', '}'];
 
 impl ProjectName {
-    pub fn parse(s: String) -> Result<ProjectName, String> {
+    pub fn parse(s: String) -> Result<Self, String> {
         if s.trim().is_empty() {
             return Err(format!("{} is not a valid project name - empty string", s));
         }
@@ -29,11 +30,24 @@ impl AsRef<str> for ProjectName {
     }
 }
 
+impl TryFrom<(&str, &ArgMatches)> for ProjectName {
+    type Error = String;
+
+    fn try_from(matches: (&str, &ArgMatches)) -> Result<Self, Self::Error> {
+        let matched = matches
+            .1
+            .get_one::<String>("project_name")
+            .ok_or("project_name not specified but was required")?;
+
+        Ok(Self(matched.into()))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use claim::{assert_err, assert_ok};
 
-    use crate::args::ProjectName;
+    use crate::domain::ProjectName;
 
     #[test]
     fn a_256_grapheme_long_name_is_valid() {
