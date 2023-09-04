@@ -11,6 +11,7 @@ use strap::fs::RealFileReader;
 fn main() -> Result<(), StrapError> {
     let cmd = config_cli();
     let matches = cmd.get_matches();
+
     // Get the config path, if specified
     let config_path = matches.get_one::<String>("config").map(|s| s.as_str());
     // Parse the config. If no path specified by user, this will use the default path

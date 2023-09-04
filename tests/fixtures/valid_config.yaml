@@ -7,10 +7,10 @@ straps:
         # in: { { strap.context.project } } ???
         # prompt: true - TODO: will prompt user before proceeding
 
-      # - name: cleanup
-      #   run: rm -rf .git
+      - name: cleanup
+        run: rm -rf .git
 
-      # - name: rename
-      #   run: |
-      #     find . -type f -exec sed -i "s//$strap_dir/g" {} \;
-      #     sed -i "s/<year>/$(date +%Y)/" LICENSE
+      - name: rename
+        run: |
+          find . -type f -exec sed -i "s/<project>/${{ STRAP_DIR }}/g" {} \;
+          sed -i "s/<year>/$(date +%Y)/" LICENSE

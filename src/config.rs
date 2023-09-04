@@ -6,8 +6,9 @@ use crate::{domain::Strap, fs::FileReader, util::has_duplicates};
 pub struct StrapConfig {
     pub straps: Vec<Strap>,
 }
-
-const DEFAULT_CONFIG_DIR: &str = "./tests/fixtures/valid_config.yaml";
+// TODO: allow yml, yaml
+// TODO: use std config dir
+const DEFAULT_CONFIG_DIR: &str = "~/.config/strap-config.yaml";
 
 impl StrapConfig {
     pub fn parse<R: FileReader>(
