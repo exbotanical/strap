@@ -6,12 +6,11 @@ use crate::executor::CommandExecutor;
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Step {
     name: String,
-    uses: Option<String>,
     run: String,
 }
 
 impl Step {
-    pub fn execute<E: CommandExecutor>(&self, context: &Path, executor: &E) -> Result<(), String> {
+    pub fn execute<E: CommandExecutor>(&self, executor: &E, context: &Path) -> Result<(), String> {
         executor.execute(&self.run, context)
     }
 
@@ -19,7 +18,6 @@ impl Step {
     pub fn mock() -> Self {
         return Self {
             name: "name".into(),
-            uses: None,
             run: "run".into(),
         };
     }
@@ -39,7 +37,6 @@ mod tests {
     fn test_execute_step() {
         let step = Step {
             name: "test_step".to_string(),
-            uses: None,
             run: "echo Hello".to_string(),
         };
 
@@ -52,7 +49,7 @@ mod tests {
             .times(1)
             .returning(|_, _| Ok(()));
 
-        let result = step.execute(&context, &mock_executor);
+        let result = step.execute(&mock_executor, &context);
 
         assert_eq!(result, Ok(()));
     }
