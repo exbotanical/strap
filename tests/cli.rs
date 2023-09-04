@@ -79,7 +79,7 @@ fn project_name_and_context_path_exists() {
 }
 
 #[test]
-fn test_valid_strap_execution() {
+fn strap_execution_happy_path() {
     let (config_file, dir_name) = setup_config();
     let project_name = "whatever";
 

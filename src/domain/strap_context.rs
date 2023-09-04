@@ -57,7 +57,7 @@ mod tests {
     use std::fs;
 
     #[test]
-    fn test_parse_with_existing_context() {
+    fn parse_with_existing_context() {
         let strap = Strap {
             name: "test_strap".to_string(),
             context: Some("/tmp".to_string()),
@@ -72,7 +72,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_without_context() {
+    fn parse_without_context() {
         let strap = Strap {
             name: "test_strap".to_string(),
             context: None,
@@ -88,7 +88,7 @@ mod tests {
     }
 
     #[test]
-    fn test_path_already_exists() {
+    fn path_already_exists() {
         let strap = Strap {
             name: "test_strap".to_string(),
             context: Some("/tmp".to_string()),

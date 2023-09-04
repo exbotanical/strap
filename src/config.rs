@@ -58,7 +58,7 @@ mod tests {
     use mockall::predicate;
 
     #[test]
-    fn test_parse_valid_config() {
+    fn parse_config_happy_path() {
         let mut mock_reader = MockFileReader::new();
 
         let mock_content = r#"
@@ -80,7 +80,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_invalid_config() {
+    fn parse_invalid_config() {
         let mut mock_reader = MockFileReader::new();
         mock_reader
             .expect_read_file_string()
@@ -93,7 +93,7 @@ mod tests {
     }
 
     #[test]
-    fn test_find_existing_strap() {
+    fn find_existing_strap() {
         let mock_content = r#"
         straps:
           - name: "test_strap"
@@ -109,7 +109,7 @@ mod tests {
     }
 
     #[test]
-    fn test_find_non_existing_strap() {
+    fn find_non_existing_strap() {
         let mock_content = r#"
         straps:
           - name: "test_strap"

@@ -36,7 +36,7 @@ mod tests {
     use crate::{domain::Step, executor::MockCommandExecutor};
 
     #[test]
-    fn test_execute_steps_happy_case() {
+    fn execute_steps_happy_path() {
         let strap = Strap {
             name: "test_strap".to_string(),
             context: Some("/tmp".to_string()),
@@ -61,7 +61,7 @@ mod tests {
     }
 
     #[test]
-    fn test_execute_steps_stops_on_error() {
+    fn execute_steps_stops_on_error() {
         let strap = Strap {
             name: "test_strap".to_string(),
             context: Some("/tmp".to_string()),

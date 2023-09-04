@@ -14,6 +14,9 @@ straps:
         run: rm -rf .git
 
       - name: rename
+      # STRAP_DIR is the context + project name, so if you run
+      # strap clib myproject, STRAP_DIR will be ~/projects/myproject
+      # STRAP_DIR will be interpolated in any `run` statements
         run: |
           find . -type f -exec sed -i "s/<project>/${{ STRAP_DIR }}/g" {} \;
           sed -i "s/<year>/$(date +%Y)/" LICENSE
