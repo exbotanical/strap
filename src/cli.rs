@@ -1,4 +1,4 @@
-use clap::{arg, Arg, Command};
+use clap::{arg, Command};
 
 use crate::config::StrapConfig;
 

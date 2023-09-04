@@ -13,9 +13,11 @@ fn setup_config() -> (NamedTempFile, TempDir) {
             context: {}
             steps:
               - name: "step1"
-                run: "echo hello"
+                run: "echo 'blablablabla <year>bla bkladekd ideideio' > LICENSE"
+              - name: "step2"
+                run: "sed -i 's/<year>/TESTVAL/' LICENSE"
         "#,
-        temp_dir.path().display()
+        temp_dir.path().display(),
     );
 
     let temp_file = NamedTempFile::new().unwrap();
@@ -76,22 +78,22 @@ fn project_name_and_context_path_exists() {
     // TODO: error msg fmt str consts
 }
 
-// #[test]
-// fn test_valid_strap_execution() {
-//     let config_file = setup_config();
+#[test]
+fn test_valid_strap_execution() {
+    let (config_file, dir_name) = setup_config();
+    let project_name = "whatever";
 
-//     let dir = tempdir().unwrap();
-//     let path = dir.path().join("clib");
+    let mut cmd = Command::cargo_bin("strap").unwrap();
+    cmd.arg("--config")
+        .arg(config_file.path().to_str().unwrap())
+        .arg("clib")
+        .arg(project_name);
 
-//     let mut cmd = Command::cargo_bin("strap").unwrap();
-//     cmd.arg("--config")
-//         .arg(config_file.path().to_str().unwrap())
-//         .arg("clib")
-//         .arg(path.to_str().unwrap());
-//     let result = cmd.output().unwrap();
+    let result = cmd.output().unwrap();
 
-//     assert!(result.status.success());
-//     assert!(path.exists());
-// }
+    let project_dir = dir_name.into_path().join(project_name);
+    let fb = std::fs::read_to_string(project_dir.join("LICENSE")).expect("test bug fs fail");
 
-// ... More tests ...
+    assert!(result.status.success());
+    assert!(fb.contains("TESTVAL"));
+}
