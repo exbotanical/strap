@@ -3,6 +3,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use crate::util::expand_tilde_if_extant;
+
 use super::Strap;
 
 #[derive(Debug)]
@@ -13,7 +15,9 @@ impl StrapContext {
         let mut base_path_buf: PathBuf = match &strap.context {
             Some(context) if !context.is_empty() => {
                 // TODO: refactor this so we don't have a side-effect in an assignment
-                let p = Path::new(context).to_path_buf();
+                let p = expand_tilde_if_extant(Path::new(context))
+                    .expect(format!("failed to normalize context path {:?}", context).as_str());
+
                 if !p.is_dir() {
                     println!("Context dir {} doesn't exist. Creating it.", p.display());
                     std::fs::create_dir(&p).map_err(|e| e.to_string())?;

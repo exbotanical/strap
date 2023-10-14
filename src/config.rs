@@ -12,7 +12,7 @@ pub struct StrapConfig {
 }
 // TODO: allow yml, yaml
 // TODO: use std config dir
-const DEFAULT_CONFIG_DIR: &str = "~/.config/strap-config.yaml";
+const DEFAULT_CONFIG_PATH: &str = "~/.config/strap-config.yaml";
 
 impl StrapConfig {
     pub fn parse<R: FileReader>(
@@ -22,9 +22,8 @@ impl StrapConfig {
         let config_as_str = reader
             .read_file_string(
                 config_path.unwrap_or(
-                    // Let it fail if we can't resolve; at this point our fallback has failed and we can't do anything else
-                    expand_tilde_if_extant(DEFAULT_CONFIG_DIR)
-                        .unwrap()
+                    expand_tilde_if_extant(DEFAULT_CONFIG_PATH)
+                        .expect("failed to expand tilde in default config path")
                         .to_str()
                         .unwrap(),
                 ),
