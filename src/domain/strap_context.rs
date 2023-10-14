@@ -16,7 +16,7 @@ impl StrapContext {
             Some(context) if !context.is_empty() => {
                 // TODO: refactor this so we don't have a side-effect in an assignment
                 let p = expand_tilde_if_extant(Path::new(context))
-                    .expect(format!("failed to normalize context path {:?}", context).as_str());
+                    .unwrap_or_else(|| panic!("failed to normalize context path {:?}", context));
 
                 if !p.is_dir() {
                     println!("Context dir {} doesn't exist. Creating it.", p.display());
