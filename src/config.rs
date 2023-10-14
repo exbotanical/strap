@@ -1,6 +1,10 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{domain::Strap, fs::FileReader, util::has_duplicates};
+use crate::{
+    domain::Strap,
+    fs::FileReader,
+    util::{expand_tilde_if_extant, has_duplicates},
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct StrapConfig {
@@ -16,7 +20,15 @@ impl StrapConfig {
         config_path: Option<&str>,
     ) -> Result<StrapConfig, String> {
         let config_as_str = reader
-            .read_file_string(config_path.unwrap_or(DEFAULT_CONFIG_DIR))
+            .read_file_string(
+                config_path.unwrap_or(
+                    // Let it fail if we can't resolve; at this point our fallback has failed and we can't do anything else
+                    expand_tilde_if_extant(DEFAULT_CONFIG_DIR)
+                        .unwrap()
+                        .to_str()
+                        .unwrap(),
+                ),
+            )
             .map_err(|e| e.to_string())
             .unwrap();
 
