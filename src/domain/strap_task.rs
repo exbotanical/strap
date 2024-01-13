@@ -21,7 +21,7 @@ impl<'a> StrapTask<'a> {
 
     pub fn execute_steps<E: CommandExecutor>(&self, executor: &E) -> Result<(), String> {
         for step in self.strap.steps.iter() {
-            step.execute(executor, self.context.as_ref())?;
+            step.execute(executor, self.context.as_ref(), &self.project_name)?;
         }
 
         Ok(())

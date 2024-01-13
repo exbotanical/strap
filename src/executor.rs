@@ -3,6 +3,7 @@ use std::process::Command;
 
 #[cfg(test)]
 use mockall::{automock, predicate::*};
+
 #[cfg_attr(test, automock)]
 pub trait CommandExecutor {
     fn execute(&self, command: &str, context: &Path) -> Result<(), String>;
